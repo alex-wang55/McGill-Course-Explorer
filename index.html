@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>McGill Course Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --red: #D0021B;
+  --red-dark: #9B0015;
+  --red-light: #FF1A35;
+  --cream: #FAF8F4;
+  --cream2: #F2EFE8;
+  --ink: #0D0D0D;
+  --ink2: #1A1A1A;
+  --muted: #6B6660;
+  --border: rgba(13,13,13,0.1);
+  --border2: rgba(13,13,13,0.06);
+  --card-bg: #FFFFFF;
+  --tag-bg: rgba(208,2,27,0.07);
+  --tag-color: #9B0015;
+  --success: #1A6B3C;
+  --success-bg: #E8F5ED;
+  --warn: #7A4B00;
+  --warn-bg: #FFF3DC;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2.5rem; height: 64px;
+  background: rgba(250,248,244,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border2);
+}
+.nav-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 18px;
+  color: var(--ink);
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-logo-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--red);
+  animation: pulse 2.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.3)} }
+.hero {
+  padding: 140px 2.5rem 80px;
+  max-width: 900px; margin: 0 auto;
+  position: relative;
+}
+.hero-eyebrow {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--red);
+  margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+}
+.hero-eyebrow::before {
+  content: '';
+  width: 24px; height: 1px; background: var(--red);
+}
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(42px, 6vw, 72px);
+  font-weight: 800; line-height: 1.0;
+  letter-spacing: -0.03em;
+  margin-bottom: 24px;
+}
+.hero h1 em { font-style: normal; color: var(--red); }
+.hero-sub {
+  font-size: 18px; font-weight: 300; color: var(--muted);
+  line-height: 1.6; max-width: 520px; margin-bottom: 48px;
+}
+.search-wrapper { position: relative; max-width: 580px; margin-bottom: 16px; }
+.search-box {
+  display: flex; align-items: center;
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.search-box:focus-within { border-color: var(--red); box-shadow: 0 0 0 4px rgba(208,2,27,0.08), var(--shadow-lg); }
+.search-icon {
+  padding: 0 0 0 20px; color: var(--muted); flex-shrink: 0;
+  display: flex; align-items: center;
+}
+.search-box input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 600;
+  color: var(--ink); padding: 18px 16px; letter-spacing: -0.01em;
+}
+.search-box input::placeholder { color: #C4BFBA; font-weight: 600; }
+.search-btn {
+  margin: 8px; flex-shrink: 0;
+  background: var(--ink); color: #fff; border: none; cursor: pointer;
+  font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  padding: 12px 24px; border-radius: 10px;
+}
+.search-btn:hover { background: var(--red); }
+.search-hint {
+  margin-top: 12px; font-size: 13px; color: var(--muted);
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.hint-chip {
+  padding: 4px 12px; background: var(--cream2);
+  border: 1px solid var(--border); border-radius: 99px;
+  font-size: 12px; cursor: pointer; transition: all 0.15s;
+  font-family: 'Syne', sans-serif; font-weight: 600;
+}
+.hint-chip:hover { background: var(--red); color: #fff; border-color: var(--red); }
+.bg-grid {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background-image: linear-gradient(90deg, var(--border2) 1px, transparent 1px);
+  background-size: 60px 60px; pointer-events: none; z-index: 0;
+}
+.bg-blob {
+  position: fixed; width: 600px; height: 600px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(208,2,27,0.06) 0%, transparent 70%);
+  top: -200px; right: -200px; pointer-events: none; z-index: 0;
+  animation: blobMove 8s ease-in-out infinite;
+}
+@keyframes blobMove { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-40px, 30px); } }
+main {
+  position: relative; z-index: 1;
+  max-width: 900px; margin: 0 auto; padding: 0 2.5rem 120px;
+}
+.loader { display: none; text-align: center; padding: 80px 0; }
+.loader-ring { width: 48px; height: 48px; position: relative; margin: 0 auto 18px; }
+.loader-ring::before, .loader-ring::after {
+  content: ''; position: absolute; border-radius: 50%;
+  border: 2px solid transparent;
+}
+.loader-ring::before { inset: 0; border-top-color: var(--red); animation: spin 0.9s linear infinite; }
+.loader-ring::after { inset: 8px; border-top-color: rgba(208,2,27,0.3); animation: spin 0.6s linear infinite reverse; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader-text { font-size: 14px; color: var(--muted); }
+.error-box {
+  display: none; background: #FFF0F1; border: 1px solid rgba(208,2,27,0.2);
+  border-radius: var(--radius-sm); padding: 14px 18px;
+  font-size: 14px; color: var(--red-dark); margin-bottom: 1.5rem;
+}
+.result-card {
+  display: none; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 24px; box-shadow: var(--shadow-lg); overflow: hidden;
+}
+.card-header {
+  padding: 2rem 2rem 1.5rem; border-bottom: 1px solid var(--border2);
+  background: linear-gradient(135deg, var(--cream) 0%, #fff 100%);
+}
+.course-code-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--red); color: #fff; font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+  padding: 6px 14px; border-radius: 99px; margin-bottom: 16px;
+}
+.course-title-main {
+  font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700;
+  margin-bottom: 12px;
+}
+.course-meta-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 18px; }
+.meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.meta-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border); }
+.card-body { padding: 0; }
+.section { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border2); }
+.section:last-child { border-bottom: none; }
+.section-eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--red); margin-bottom: 10px;
+}
+.section-text { font-size: 15px; line-height: 1.7; color: var(--ink2); font-weight: 300; }
+.section-text strong { font-weight: 500; }
+.tags-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.tag { padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 500; font-family: 'Syne', sans-serif; cursor: default; }
+.tag-red { background: var(--tag-bg); color: var(--tag-color); border: 1px solid rgba(208,2,27,0.15); }
+.tag-ink { background: rgba(13,13,13,0.05); color: var(--ink); border: 1px solid var(--border); }
+.ratings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.rating-tile {
+  background: var(--cream); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 20px; text-align: center;
+}
+.rating-num {
+  font-family: 'Syne', sans-serif; font-size: 42px; font-weight: 800;
+}
+.rating-denom { font-size: 18px; color: var(--muted); }
+.rating-stars { font-size: 16px; letter-spacing: 2px; margin: 8px 0 4px; }
+.rating-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; }
+.color-good { color: var(--success); }
+.color-mid { color: #B07300; }
+.color-bad { color: var(--red); }
+.term-label { font-size: 13px; color: var(--muted); margin-bottom: 10px; font-weight: 300; }
+.term-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-bottom: 16px; }
+.term-btn {
+  padding: 10px 8px; text-align: center; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); background: var(--cream); color: var(--ink);
+  font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.term-btn:hover { border-color: var(--red); color: var(--red); background: var(--tag-bg); }
+.term-btn.selected { border-color: var(--red); background: var(--red); color: #fff; box-shadow: 0 4px 12px rgba(208,2,27,0.3); }
+.add-schedule-btn {
+  width: 100%; padding: 16px; background: var(--ink); color: #fff;
+  border: none; border-radius: var(--radius-sm); font-family: 'Syne', sans-serif;
+  font-size: 14px; font-weight: 700; letter-spacing: 0.06em; cursor: pointer;
+}
+.add-schedule-btn:hover { background: var(--red); transform: translateY(-1px); }
+.links-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+.ext-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: var(--radius-sm);
+  background: var(--cream2); border: 1px solid var(--border);
+  font-size: 13px; font-weight: 500; color: var(--ink);
+  text-decoration: none; font-family: 'Syne', sans-serif;
+}
+.schedule-panel {
+  display: none; margin-top: 2rem; background: var(--card-bg);
+  border: 1px solid var(--border); border-radius: 24px; overflow: hidden;
+}
+.schedule-header {
+  padding: 1.25rem 1.75rem; background: var(--ink); color: #fff;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.schedule-items { padding: 0.5rem; }
+.sched-item {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 12px 1.25rem; border-top: 1px solid var(--border2);
+}
+.sched-item:first-child { border-top: none; }
+.sched-item-info { display: flex; flex-direction: column; gap: 2px; }
+.sched-code { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
+.sched-title { font-size: 12px; color: var(--muted); font-weight: 300; }
+.sched-badges { display: flex; gap: 6px; margin-top: 2px; }
+.sched-badge { padding: 4px 8px; border-radius: 999px; font-size: 11px; border: 1px solid var(--border); }
+.badge-term { background: var(--cream2); color: var(--muted); }
+.badge-cr { background: var(--tag-bg); color: var(--tag-color); border-color: rgba(208,2,27,0.15); }
+.sched-remove {
+  background: transparent; border: 1px solid var(--border); border-radius: 12px;
+  color: var(--ink); padding: 6px 10px; cursor: pointer;
+}
+.sched-remove:hover { background: var(--red); color: #fff; border-color: var(--red); }
+.toast {
+  position: fixed; bottom: 24px; right: 24px; background: var(--ink);
+  color: #fff; padding: 14px 18px; border-radius: 999px;
+  transform: translateY(24px); opacity: 0; transition: transform 0.25s ease, opacity 0.25s ease;
+  display: inline-flex; align-items: center; gap: 10px; z-index: 200;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ECC71; }
+@media (max-width: 640px) {
+  nav, .hero, main { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .search-btn { padding: 12px 16px; }
+}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-blob"></div>
+
+<nav>
+  <div class="nav-logo">
+    <span class="nav-logo-dot"></span> McGill Course Explorer
+  </div>
+  <div class="nav-badge">Static Demo</div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Find your next class faster</div>
+  <h1>Search McGill courses <em>without the noise</em></h1>
+  <p class="hero-sub">Type a course code or keyword to see sample ratings, descriptions, term options, and add classes to a schedule.</p>
+  <div class="search-wrapper">
+    <form id="searchForm" class="search-box">
+      <span class="search-icon">🔍</span>
+      <input id="courseInput" type="text" placeholder="e.g. CSCI 100 or calculus" autocomplete="off" />
+      <button type="submit" class="search-btn">Search</button>
+    </form>
+    <div class="search-hint">
+      <button type="button" class="hint-chip" onclick="fillAndSearch('CSCI 100')">CSCI 100</button>
+      <button type="button" class="hint-chip" onclick="fillAndSearch('MATH 140')">MATH 140</button>
+      <button type="button" class="hint-chip" onclick="fillAndSearch('PHYS 101')">PHYS 101</button>
+      <button type="button" class="hint-chip" onclick="fillAndSearch('STAT 250')">STAT 250</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div id="errorBox" class="error-box"></div>
+  <div id="loader" class="loader">
+    <div class="loader-ring"></div>
+    <div class="loader-text" id="loaderText">Searching catalogue…</div>
+  </div>
+
+  <article id="resultCard" class="result-card">
+    <div class="card-header">
+      <div class="course-code-pill" id="resultCode">CSCI 100</div>
+      <h2 class="course-title-main" id="resultTitle">Introduction to Computer Science</h2>
+      <div class="course-meta-row">
+        <div class="meta-item"><span class="meta-dot"></span><span id="resultCredits">3 credits</span></div>
+        <div class="meta-item"><span class="meta-dot"></span><span id="resultTerm">Fall / Winter</span></div>
+        <div class="meta-item"><span class="meta-dot"></span><span id="resultLevel">Undergraduate</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <section class="section">
+        <div class="section-eyebrow">Course summary</div>
+        <div class="section-text" id="resultDescription"></div>
+      </section>
+      <section class="section">
+        <div class="section-eyebrow">Ratings</div>
+        <div class="ratings-grid">
+          <div class="rating-tile">
+            <div class="rating-num" id="ratingOverall">4.6</div>
+            <div class="rating-stars" id="starsOverall">★★★★★</div>
+            <div class="rating-denom" id="overallText">Overall</div>
+          </div>
+          <div class="rating-tile">
+            <div class="rating-num" id="ratingDifficulty">3.1</div>
+            <div class="rating-stars" id="starsDifficulty">★★★☆☆</div>
+            <div class="rating-denom" id="difficultyText">Difficulty</div>
+          </div>
+        </div>
+        <div class="tags-row" id="tagsRow"></div>
+      </section>
+      <section class="section">
+        <div class="section-eyebrow">Schedule builder</div>
+        <div class="term-label">Pick a term</div>
+        <div id="termGrid" class="term-grid"></div>
+        <button id="addScheduleBtn" class="add-schedule-btn" type="button" onclick="addToSchedule()">Add to schedule</button>
+      </section>
+      <section class="section">
+        <div class="section-eyebrow">External resources</div>
+        <div class="links-row">
+          <a id="catalogLink" class="ext-link" href="#" target="_blank" rel="noreferrer">Course catalog</a>
+          <a id="reviewLink" class="ext-link" href="#" target="_blank" rel="noreferrer">Student reviews</a>
+        </div>
+      </section>
+    </div>
+  </article>
+
+  <div id="schedulePanel" class="schedule-panel">
+    <div class="schedule-header">
+      <h2>My schedule</h2>
+      <div class="schedule-count" id="scheduleCount">0 courses</div>
+    </div>
+    <div id="scheduleItems" class="schedule-items"></div>
+  </div>
+</main>
+
+<div class="toast" id="toast"><span class="toast-dot"></span><span id="toastText">Saved to schedule</span></div>
+
+<script>
+const courses = [
+  {
+    code: 'CSCI 100',
+    title: 'Introduction to Computer Science',
+    credits: '3 credits',
+    term: 'Fall / Winter',
+    level: 'Undergraduate',
+    description: 'A beginner-friendly introduction to algorithms, programming, and problem solving with Python.',
+    tags: ['Great for beginners', 'Project-based', 'Popular'],
+    overall: 4.6,
+    difficulty: 3.0,
+    catalogUrl: 'https://www.mcgill.ca/study/2024-2025/courses/CSCI',
+    reviewUrl: 'https://mcgill.courses/course/csci100'
+  },
+  {
+    code: 'MATH 140',
+    title: 'Calculus 1',
+    credits: '3 credits',
+    term: 'Fall',
+    level: 'Undergraduate',
+    description: 'Limits, derivatives, and applications of differentiation for students in science and engineering.',
+    tags: ['Fast-paced lectures', 'Foundational', 'Strong exam focus'],
+    overall: 4.1,
+    difficulty: 3.5,
+    catalogUrl: 'https://www.mcgill.ca/study/2024-2025/courses/MATH',
+    reviewUrl: 'https://mcgill.courses/course/math140'
+  },
+  {
+    code: 'PHYS 101',
+    title: 'Mechanics',
+    credits: '3 credits',
+    term: 'Fall',
+    level: 'Undergraduate',
+    description: 'Classical mechanics, vectors, energy, and motion for physics and engineering students.',
+    tags: ['Problem-solving', 'Useful labs', 'Moderate workload'],
+    overall: 4.0,
+    difficulty: 3.8,
+    catalogUrl: 'https://www.mcgill.ca/study/2024-2025/courses/PHYS',
+    reviewUrl: 'https://mcgill.courses/course/phys101'
+  },
+  {
+    code: 'STAT 250',
+    title: 'Statistical Methods',
+    credits: '3 credits',
+    term: 'Winter',
+    level: 'Undergraduate',
+    description: 'Probability, inference, and regression techniques for students in science and business.',
+    tags: ['Useful for research', 'Heavy assignments', 'Curved grading'],
+    overall: 4.2,
+    difficulty: 3.6,
+    catalogUrl: 'https://www.mcgill.ca/study/2024-2025/courses/STAT',
+    reviewUrl: 'https://mcgill.courses/course/stat250'
+  }
+];
+const terms = ['Fall 2026', 'Winter 2027', 'Summer 2027'];
+let schedule = [];
+let selectedTerm = terms[0];
+let currentCourse = null;
+let loaderInterval = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('searchForm').addEventListener('submit', handleSearch);
+  renderTermButtons();
+  renderSchedule();
+});
+
+function fillAndSearch(code) {
+  const input = document.getElementById('courseInput');
+  input.value = code;
+  handleSearch();
+}
+
+function showError(msg) {
+  const errorBox = document.getElementById('errorBox');
+  errorBox.textContent = msg;
+  errorBox.style.display = 'block';
+  document.getElementById('resultCard').style.display = 'none';
+  document.getElementById('schedulePanel').style.display = schedule.length ? 'block' : 'none';
+}
+
+function hideError() {
+  const errorBox = document.getElementById('errorBox');
+  errorBox.style.display = 'none';
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  const toastText = document.getElementById('toastText');
+  toastText.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast.hideTimeout);
+  toast.hideTimeout = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+function starText(value) {
+  const rounded = Math.round(value);
+  return '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
+}
+
+function ratingColor(value) {
+  if (value >= 4.2) return 'color-good';
+  if (value >= 3.2) return 'color-mid';
+  return 'color-bad';
+}
+
+function startLoader() {
+  const loader = document.getElementById('loader');
+  const loaderText = document.getElementById('loaderText');
+  const steps = ['Searching catalogue…', 'Fetching course details…', 'Estimating difficulty…'];
+  let index = 0;
+  loaderText.textContent = steps[index];
+  loader.style.display = 'block';
+  loaderInterval = setInterval(() => {
+    index = (index + 1) % steps.length;
+    loaderText.textContent = steps[index];
+  }, 700);
+}
+
+function stopLoader() {
+  clearInterval(loaderInterval);
+  document.getElementById('loader').style.display = 'none';
+}
+
+async function handleSearch(event) {
+  if (event) event.preventDefault();
+  hideError();
+  const query = document.getElementById('courseInput').value.trim();
+  if (!query) {
+    showError('Please enter a course code or keyword.');
+    return;
+  }
+
+  startLoader();
+  await new Promise(resolve => setTimeout(resolve, 700));
+
+  const normalized = query.toUpperCase().replace(/\s+/g, ' ');
+  currentCourse = courses.find(course =>
+    course.code === normalized ||
+    course.code.startsWith(normalized) ||
+    course.title.toUpperCase().includes(normalized) ||
+    course.tags.some(tag => tag.toUpperCase().includes(normalized))
+  );
+
+  stopLoader();
+
+  if (!currentCourse) {
+    showError('Course not found. Try another code or keyword.');
+    return;
+  }
+
+  renderResult(currentCourse);
+  renderTermButtons();
+  document.getElementById('resultCard').style.display = 'block';
+}
+
+function renderResult(course) {
+  document.getElementById('resultCode').textContent = course.code;
+  document.getElementById('resultTitle').textContent = course.title;
+  document.getElementById('resultCredits').textContent = course.credits;
+  document.getElementById('resultTerm').textContent = course.term;
+  document.getElementById('resultLevel').textContent = course.level;
+  document.getElementById('resultDescription').textContent = course.description;
+  document.getElementById('ratingOverall').textContent = course.overall.toFixed(1);
+  document.getElementById('starsOverall').textContent = starText(course.overall);
+  document.getElementById('ratingDifficulty').textContent = course.difficulty.toFixed(1);
+  document.getElementById('starsDifficulty').textContent = starText(6 - course.difficulty);
+  document.getElementById('catalogLink').href = course.catalogUrl;
+  document.getElementById('reviewLink').href = course.reviewUrl;
+  const tagsRow = document.getElementById('tagsRow');
+  tagsRow.innerHTML = '';
+  course.tags.forEach(tag => {
+    const span = document.createElement('span');
+    span.className = 'tag tag-red';
+    span.textContent = tag;
+    tagsRow.appendChild(span);
+  });
+}
+
+function renderTermButtons() {
+  const container = document.getElementById('termGrid');
+  container.innerHTML = '';
+  terms.forEach(term => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `term-btn${term === selectedTerm ? ' selected' : ''}`;
+    button.textContent = term;
+    button.onclick = () => {
+      selectedTerm = term;
+      renderTermButtons();
+    };
+    container.appendChild(button);
+  });
+}
+
+function addToSchedule() {
+  if (!currentCourse) {
+    showError('Search for a course before adding it to your schedule.');
+    return;
+  }
+  const key = `${currentCourse.code}|${selectedTerm}`;
+  if (schedule.some(item => item.key === key)) {
+    showToast('Already in schedule');
+    return;
+  }
+  schedule.push({
+    key,
+    code: currentCourse.code,
+    title: currentCourse.title,
+    term: selectedTerm,
+    credits: currentCourse.credits
+  });
+  renderSchedule();
+  showToast('Added to schedule');
+}
+
+function removeFromSchedule(key) {
+  schedule = schedule.filter(item => item.key !== key);
+  renderSchedule();
+}
+
+function renderSchedule() {
+  const panel = document.getElementById('schedulePanel');
+  const items = document.getElementById('scheduleItems');
+  const count = document.getElementById('scheduleCount');
+  if (!schedule.length) {
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+  count.textContent = `${schedule.length} course${schedule.length > 1 ? 's' : ''}`;
+  items.innerHTML = '';
+  schedule.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'sched-item';
+    row.innerHTML = `
+      <div class="sched-item-info">
+        <div class="sched-code">${item.code}</div>
+        <div class="sched-title">${item.title}</div>
+        <div class="sched-badges">
+          <span class="sched-badge badge-term">${item.term}</span>
+          <span class="sched-badge badge-cr">${item.credits}</span>
+        </div>
+      </div>
+      <button class="sched-remove" type="button">Remove</button>
+    `;
+    row.querySelector('button').onclick = () => removeFromSchedule(item.key);
+    items.appendChild(row);
+  });
+}
+</script>
+</body>
+</html>
