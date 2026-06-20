@@ -284,13 +284,13 @@ main {
   <div class="search-wrapper">
     <form id="searchForm" class="search-box">
       <span class="search-icon">🔍</span>
-      <input id="courseInput" type="text" placeholder="e.g. CSCI 100 or calculus" autocomplete="off" />
+      <input id="courseInput" type="text" placeholder="e.g. COMP 202 or calculus" autocomplete="off" />
       <button type="submit" class="search-btn">Search</button>
     </form>
     <div class="search-hint">
-      <button type="button" class="hint-chip" onclick="fillAndSearch('CSCI 100')">CSCI 100</button>
+      <button type="button" class="hint-chip" onclick="fillAndSearch('COMP 202')">COMP 202</button>
+      <button type="button" class="hint-chip" onclick="fillAndSearch('COMP 232')">COMP 232</button>
       <button type="button" class="hint-chip" onclick="fillAndSearch('MATH 140')">MATH 140</button>
-      <button type="button" class="hint-chip" onclick="fillAndSearch('PHYS 101')">PHYS 101</button>
       <button type="button" class="hint-chip" onclick="fillAndSearch('STAT 250')">STAT 250</button>
     </div>
   </div>
@@ -305,8 +305,8 @@ main {
 
   <article id="resultCard" class="result-card">
     <div class="card-header">
-      <div class="course-code-pill" id="resultCode">CSCI 100</div>
-      <h2 class="course-title-main" id="resultTitle">Introduction to Computer Science</h2>
+      <div class="course-code-pill" id="resultCode">COMP 202</div>
+      <h2 class="course-title-main" id="resultTitle">Computer Science II</h2>
       <div class="course-meta-row">
         <div class="meta-item"><span class="meta-dot"></span><span id="resultCredits">3 credits</span></div>
         <div class="meta-item"><span class="meta-dot"></span><span id="resultTerm">Fall / Winter</span></div>
@@ -322,13 +322,13 @@ main {
         <div class="section-eyebrow">Ratings</div>
         <div class="ratings-grid">
           <div class="rating-tile">
-            <div class="rating-num" id="ratingOverall">4.6</div>
-            <div class="rating-stars" id="starsOverall">★★★★★</div>
+            <div class="rating-num" id="ratingOverall">4.1</div>
+            <div class="rating-stars" id="starsOverall">★★★★☆</div>
             <div class="rating-denom" id="overallText">Overall</div>
           </div>
           <div class="rating-tile">
-            <div class="rating-num" id="ratingDifficulty">3.1</div>
-            <div class="rating-stars" id="starsDifficulty">★★★☆☆</div>
+            <div class="rating-num" id="ratingDifficulty">3.9</div>
+            <div class="rating-stars" id="starsDifficulty">★★★★☆</div>
             <div class="rating-denom" id="difficultyText">Difficulty</div>
           </div>
         </div>
@@ -364,17 +364,30 @@ main {
 <script>
 const courses = [
   {
-    code: 'CSCI 100',
-    title: 'Introduction to Computer Science',
+    code: 'COMP 202',
+    title: 'Computer Science II',
     credits: '3 credits',
     term: 'Fall / Winter',
     level: 'Undergraduate',
-    description: 'A beginner-friendly introduction to algorithms, programming, and problem solving with Python.',
-    tags: ['Great for beginners', 'Project-based', 'Popular'],
-    overall: 4.6,
-    difficulty: 3.0,
-    catalogUrl: 'https://www.mcgill.ca/study/2024-2025/courses/CSCI',
-    reviewUrl: 'https://mcgill.courses/course/csci100'
+    description: 'Object-oriented programming, data structures, and algorithm analysis with Java. Builds on first-year programming concepts and introduces recursion, lists, stacks, trees, and algorithm complexity.',
+    tags: ['Core requirement', 'Programming', 'Lab-based'],
+    overall: 4.1,
+    difficulty: 3.9,
+    catalogUrl: 'https://www.mcgill.ca/study/2024-2025/courses/COMP',
+    reviewUrl: 'https://mcgill.courses/course/comp202'
+  },
+  {
+    code: 'COMP 232',
+    title: 'Data Structures and Algorithms',
+    credits: '3 credits',
+    term: 'Fall / Winter',
+    level: 'Undergraduate',
+    description: 'In-depth study of data structures, algorithm design, and performance analysis. Emphasizes efficient solutions for lists, trees, graphs, sorting, and search problems.',
+    tags: ['Challenging', 'Algorithmic thinking', 'High workload'],
+    overall: 4.3,
+    difficulty: 4.2,
+    catalogUrl: 'https://www.mcgill.ca/study/2024-2025/courses/COMP',
+    reviewUrl: 'https://mcgill.courses/course/comp232'
   },
   {
     code: 'MATH 140',
@@ -382,25 +395,12 @@ const courses = [
     credits: '3 credits',
     term: 'Fall',
     level: 'Undergraduate',
-    description: 'Limits, derivatives, and applications of differentiation for students in science and engineering.',
-    tags: ['Fast-paced lectures', 'Foundational', 'Strong exam focus'],
-    overall: 4.1,
-    difficulty: 3.5,
-    catalogUrl: 'https://www.mcgill.ca/study/2024-2025/courses/MATH',
-    reviewUrl: 'https://mcgill.courses/course/math140'
-  },
-  {
-    code: 'PHYS 101',
-    title: 'Mechanics',
-    credits: '3 credits',
-    term: 'Fall',
-    level: 'Undergraduate',
-    description: 'Classical mechanics, vectors, energy, and motion for physics and engineering students.',
-    tags: ['Problem-solving', 'Useful labs', 'Moderate workload'],
+    description: 'Limits, derivatives, and applications of differential calculus for students in science and engineering.',
+    tags: ['Foundational', 'Lecture-heavy', 'Exam-focused'],
     overall: 4.0,
     difficulty: 3.8,
-    catalogUrl: 'https://www.mcgill.ca/study/2024-2025/courses/PHYS',
-    reviewUrl: 'https://mcgill.courses/course/phys101'
+    catalogUrl: 'https://www.mcgill.ca/study/2024-2025/courses/MATH',
+    reviewUrl: 'https://mcgill.courses/course/math140'
   },
   {
     code: 'STAT 250',
@@ -408,10 +408,10 @@ const courses = [
     credits: '3 credits',
     term: 'Winter',
     level: 'Undergraduate',
-    description: 'Probability, inference, and regression techniques for students in science and business.',
-    tags: ['Useful for research', 'Heavy assignments', 'Curved grading'],
-    overall: 4.2,
-    difficulty: 3.6,
+    description: 'Introduction to probability, inference, and regression. Covers statistical reasoning, hypothesis testing, and data analysis for science and business students.',
+    tags: ['Useful for research', 'Assignments', 'Curved grading'],
+    overall: 4.1,
+    difficulty: 3.7,
     catalogUrl: 'https://www.mcgill.ca/study/2024-2025/courses/STAT',
     reviewUrl: 'https://mcgill.courses/course/stat250'
   }
@@ -457,7 +457,7 @@ function showToast(msg) {
 }
 
 function starText(value) {
-  const rounded = Math.round(value);
+  const rounded = Math.max(0, Math.min(5, Math.round(value)));
   return '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
 }
 
@@ -527,7 +527,7 @@ function renderResult(course) {
   document.getElementById('ratingOverall').textContent = course.overall.toFixed(1);
   document.getElementById('starsOverall').textContent = starText(course.overall);
   document.getElementById('ratingDifficulty').textContent = course.difficulty.toFixed(1);
-  document.getElementById('starsDifficulty').textContent = starText(6 - course.difficulty);
+  document.getElementById('starsDifficulty').textContent = starText(course.difficulty);
   document.getElementById('catalogLink').href = course.catalogUrl;
   document.getElementById('reviewLink').href = course.reviewUrl;
   const tagsRow = document.getElementById('tagsRow');
