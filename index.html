@@ -274,17 +274,16 @@ main {
   <div class="nav-logo">
     <span class="nav-logo-dot"></span> McGill Course Explorer
   </div>
-  <div class="nav-badge">Static Demo</div>
 </nav>
 
 <div class="hero">
   <div class="hero-eyebrow">Find your next class faster</div>
   <h1>Search McGill courses <em>without the noise</em></h1>
-  <p class="hero-sub">Type a course code or keyword to see sample ratings, descriptions, term options, and add classes to a schedule.</p>
+  <p class="hero-sub">Type a course code or keyword to see ratings, descriptions, term options, and add classes to your schedule.</p>
   <div class="search-wrapper">
     <form id="searchForm" class="search-box">
       <span class="search-icon">🔍</span>
-      <input id="courseInput" type="text" placeholder="e.g. COMP 202 or calculus" autocomplete="off" />
+      <input id="courseInput" type="text" placeholder="e.g. COMP 202 or MATH 140" autocomplete="off" />
       <button type="submit" class="search-btn">Search</button>
     </form>
     <div class="search-hint">
@@ -362,60 +361,6 @@ main {
 <div class="toast" id="toast"><span class="toast-dot"></span><span id="toastText">Saved to schedule</span></div>
 
 <script>
-const courses = [
-  {
-    code: 'COMP 202',
-    title: 'Computer Science II',
-    credits: '3 credits',
-    term: 'Fall / Winter',
-    level: 'Undergraduate',
-    description: 'Object-oriented programming, data structures, and algorithm analysis with Java. Builds on first-year programming concepts and introduces recursion, lists, stacks, trees, and algorithm complexity.',
-    tags: ['Core requirement', 'Programming', 'Lab-based'],
-    overall: 4.1,
-    difficulty: 3.9,
-    catalogUrl: 'https://www.mcgill.ca/study/2024-2025/courses/COMP',
-    reviewUrl: 'https://mcgill.courses/course/comp202'
-  },
-  {
-    code: 'COMP 232',
-    title: 'Data Structures and Algorithms',
-    credits: '3 credits',
-    term: 'Fall / Winter',
-    level: 'Undergraduate',
-    description: 'In-depth study of data structures, algorithm design, and performance analysis. Emphasizes efficient solutions for lists, trees, graphs, sorting, and search problems.',
-    tags: ['Challenging', 'Algorithmic thinking', 'High workload'],
-    overall: 4.3,
-    difficulty: 4.2,
-    catalogUrl: 'https://www.mcgill.ca/study/2024-2025/courses/COMP',
-    reviewUrl: 'https://mcgill.courses/course/comp232'
-  },
-  {
-    code: 'MATH 140',
-    title: 'Calculus 1',
-    credits: '3 credits',
-    term: 'Fall',
-    level: 'Undergraduate',
-    description: 'Limits, derivatives, and applications of differential calculus for students in science and engineering.',
-    tags: ['Foundational', 'Lecture-heavy', 'Exam-focused'],
-    overall: 4.0,
-    difficulty: 3.8,
-    catalogUrl: 'https://www.mcgill.ca/study/2024-2025/courses/MATH',
-    reviewUrl: 'https://mcgill.courses/course/math140'
-  },
-  {
-    code: 'STAT 250',
-    title: 'Statistical Methods',
-    credits: '3 credits',
-    term: 'Winter',
-    level: 'Undergraduate',
-    description: 'Introduction to probability, inference, and regression. Covers statistical reasoning, hypothesis testing, and data analysis for science and business students.',
-    tags: ['Useful for research', 'Assignments', 'Curved grading'],
-    overall: 4.1,
-    difficulty: 3.7,
-    catalogUrl: 'https://www.mcgill.ca/study/2024-2025/courses/STAT',
-    reviewUrl: 'https://mcgill.courses/course/stat250'
-  }
-];
 const terms = ['Fall 2026', 'Winter 2027', 'Summer 2027'];
 let schedule = [];
 let selectedTerm = terms[0];
@@ -461,16 +406,10 @@ function starText(value) {
   return '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
 }
 
-function ratingColor(value) {
-  if (value >= 4.2) return 'color-good';
-  if (value >= 3.2) return 'color-mid';
-  return 'color-bad';
-}
-
 function startLoader() {
   const loader = document.getElementById('loader');
   const loaderText = document.getElementById('loaderText');
-  const steps = ['Searching catalogue…', 'Fetching course details…', 'Estimating difficulty…'];
+  const steps = ['Searching catalogue…', 'Fetching course details…', 'Loading reviews…'];
   let index = 0;
   loaderText.textContent = steps[index];
   loader.style.display = 'block';
@@ -483,6 +422,41 @@ function startLoader() {
 function stopLoader() {
   clearInterval(loaderInterval);
   document.getElementById('loader').style.display = 'none';
+}
+
+function parseCourseCode(input) {
+  const match = input.toUpperCase().trim().replace(/\s+/g, ' ').match(/^([A-Z]{2,5})\s*([0-9]{3,4})$/);
+  return match ? { subject: match[1], number: match[2] } : null;
+}
+
+function buildCatalogUrl(code) {
+  const parsed = parseCourseCode(code);
+  if (!parsed) return 'https://www.mcgill.ca/';
+  return `https://www.mcgill.ca/study/2024-2025/courses/${parsed.subject}/${parsed.subject}${parsed.number}`;
+}
+
+function buildReviewUrl(code) {
+  const parsed = parseCourseCode(code);
+  if (!parsed) return 'https://mcgill.courses/';
+  return `https://mcgill.courses/course/${parsed.subject.toLowerCase()}${parsed.number}`;
+}
+
+function createFallbackCourse(code) {
+  const parsed = parseCourseCode(code);
+  if (!parsed) return null;
+  return {
+    code,
+    title: `${parsed.subject} ${parsed.number}`,
+    credits: '3 credits',
+    term: 'Varies by year',
+    level: 'Undergraduate',
+    description: 'This is a McGill course. Use the official catalog link for exact description, prerequisites, and term offerings.',
+    tags: ['Verify details', 'Check catalog'],
+    overall: 3.5,
+    difficulty: 3.5,
+    catalogUrl: buildCatalogUrl(code),
+    reviewUrl: buildReviewUrl(code)
+  };
 }
 
 async function handleSearch(event) {
@@ -498,17 +472,12 @@ async function handleSearch(event) {
   await new Promise(resolve => setTimeout(resolve, 700));
 
   const normalized = query.toUpperCase().replace(/\s+/g, ' ');
-  currentCourse = courses.find(course =>
-    course.code === normalized ||
-    course.code.startsWith(normalized) ||
-    course.title.toUpperCase().includes(normalized) ||
-    course.tags.some(tag => tag.toUpperCase().includes(normalized))
-  );
+  currentCourse = createFallbackCourse(normalized);
 
   stopLoader();
 
   if (!currentCourse) {
-    showError('Course not found. Try another code or keyword.');
+    showError('Course not found. Try another code (e.g., COMP 202, MATH 140).');
     return;
   }
 
